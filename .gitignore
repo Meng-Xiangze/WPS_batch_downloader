@@ -1,0 +1,8 @@
+/state.json
+/downloads/
+/debug_screenshot.png
+/downloader*截图*/
+__pycache__/
+*.py[cod]
+.venv/
+.env

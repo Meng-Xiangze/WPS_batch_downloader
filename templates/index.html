@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WPS 365 Batch Downloader</title>
+<style>
+*{box-sizing:border-box}html,body{height:100%;overflow:hidden}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:#f4f6f8;color:#1f2937}
+button,input{font:inherit}.app{width:100vw;height:100%;overflow:hidden;display:grid;grid-template-rows:56px minmax(0,1fr) 34px}.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:#111827;color:#fff}
+.brand{font-weight:650;font-size:16px}.top-actions{display:flex;align-items:center;gap:12px}.status{font-size:13px;color:#d1d5db}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;background:#ef4444}.dot.on{background:#22c55e}.dot.wait{background:#f59e0b}
+.btn{border:0;border-radius:7px;padding:8px 13px;cursor:pointer;background:#e5e7eb;color:#111827;font-size:13px;font-weight:600}.btn:hover{filter:brightness(.97)}.btn:disabled{opacity:.55;cursor:default}.primary{background:#2563eb;color:#fff}.success{background:#15803d;color:#fff}.warning{background:#d97706;color:#fff}.ghost{background:#fff;border:1px solid #d1d5db;color:#374151}
+.layout{min-width:0;min-height:0;overflow:hidden;display:grid;grid-template-columns:340px minmax(0,1fr)}.sidebar{background:#fff;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;min-height:0;overflow:auto}.panel{padding:16px;border-bottom:1px solid #eef0f3}.label{font-size:12px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:9px}
+.urlrow{display:flex;gap:8px}.urlrow input{width:100%;height:38px;border:1px solid #d1d5db;border-radius:7px;padding:0 10px;outline:none}.urlrow input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.hint{margin-top:7px;font-size:12px;color:#8a94a6}.task-card{display:none}.task-name{font-size:14px;font-weight:700;word-break:break-all}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:#f8fafc;border:1px solid #edf1f5;border-radius:7px;padding:9px}.stat span{display:block;font-size:11px;color:#6b7280}.stat strong{display:block;margin-top:3px;font-size:13px}
+.group-list{display:none;margin-top:12px;max-height:220px;overflow:auto;border:1px solid #e5e7eb;border-radius:7px}.group-item{width:100%;display:block;text-align:left;border:0;border-bottom:1px solid #eef0f3;background:#fff;padding:9px 10px;cursor:pointer}.group-item:hover{background:#f3f6ff}.group-item:last-child{border-bottom:0}.group-name{font-size:13px;font-weight:650;color:#1f2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.group-url{font-size:11px;color:#6b7280;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.current-url{margin-top:10px;font-size:11px;color:#6b7280;word-break:break-all;line-height:1.4}
+.actions{display:none;gap:8px;flex-wrap:wrap}.actions .wide{width:100%}.main{min-width:0;min-height:0;overflow:hidden;display:grid;grid-template-rows:50px 4px minmax(0,1fr)}.main-head{display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:#fff;border-bottom:1px solid #e5e7eb}.main-title{font-size:15px;font-weight:700}.selected{font-size:12px;color:#6b7280}
+.progress{background:#e5e7eb}.bar{height:100%;width:0;background:#2563eb;transition:width .25s}.workspace{position:relative;min-height:0;overflow:auto}.login{height:100%;display:flex;align-items:center;justify-content:center;padding:28px}.login-box{text-align:center;max-width:920px}.login-box h2{font-size:20px;margin:0 0 8px}.login-box p{font-size:13px;color:#6b7280;margin:0 0 18px}.qr{width:820px;max-width:82vw;border:1px solid #e5e7eb;border-radius:8px;background:#fff;box-shadow:0 12px 26px rgba(15,23,42,.12);cursor:pointer}
+.tree{display:none;padding:18px 22px}.empty{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;color:#7a8494}.folder{margin:2px 0}.folder-head{height:30px;display:grid;grid-template-columns:16px 22px 1fr 72px;align-items:center;gap:7px;border-radius:6px;padding:0 6px;cursor:pointer}.folder-head:hover,.file:hover{background:#eef4ff}.arrow{width:16px;color:#6b7280;transition:transform .15s}.arrow.open{transform:rotate(90deg)}.children{display:none;margin-left:22px}.children.open{display:block}
+.file{height:29px;display:grid;grid-template-columns:22px 1fr 82px 72px;align-items:center;gap:7px;border-radius:6px;padding:0 6px;font-size:13px}.file-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.size,.file-status{font-size:12px;color:#6b7280;text-align:right}.done{color:#15803d}.failed{color:#dc2626}.pending{color:#6b7280}input[type=checkbox]{accent-color:#2563eb}
+.summary{min-width:0;overflow:hidden;display:flex;align-items:center;gap:22px;padding:0 22px;background:#fff;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;z-index:5}.summary strong{color:#111827}.toast{position:fixed;right:18px;top:70px;padding:11px 15px;border-radius:8px;color:#fff;font-size:13px;box-shadow:0 10px 28px rgba(0,0,0,.18)}.toast.error{background:#dc2626}.toast.success{background:#15803d}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">WPS 365 批量下载</div>
+    <div class="top-actions">
+      <div id="browserStatus" class="status"><span class="dot"></span>未连接</div>
+      <button id="btnLaunch" class="btn primary" onclick="launchBrowser()">重新加载登录</button>
+    </div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <section class="panel">
+        <div class="label">团队页面链接</div>
+        <div class="urlrow"><input id="urlInput" placeholder="https://www.kdocs.cn/ent/.../..."></div>
+        <div class="hint">登录后可以打开团队入口页，在中间预览里点到目标团队，再抓取当前页面。</div>
+        <button id="btnOpenEntgroups" class="btn ghost" onclick="openEntgroups()" style="width:100%;margin-top:12px">打开团队入口页</button>
+        <button id="btnAnalyzeCurrent" class="btn success" onclick="analyzeCurrentPage(false)" style="width:100%;margin-top:8px">抓取当前页面</button>
+        <div id="currentUrl" class="current-url"></div>
+        <button id="btnDiscoverGroups" class="btn ghost" onclick="discoverGroups()" style="width:100%;margin-top:12px">自动扫描入口</button>
+        <div id="groupList" class="group-list"></div>
+        <button id="btnAnalyze" class="btn primary" onclick="analyzeUrl()" style="width:100%;margin-top:12px">分析文件</button>
+      </section>
+      <section id="taskInfo" class="panel task-card">
+        <div id="taskName" class="task-name"></div>
+        <div class="stats">
+          <div class="stat"><span>文件</span><strong id="statFiles">0</strong></div>
+          <div class="stat"><span>大小</span><strong id="statSize">0 B</strong></div>
+          <div class="stat"><span>完成</span><strong id="statDone">0</strong></div>
+        </div>
+      </section>
+      <section id="sidebarActions" class="panel actions">
+        <button class="btn ghost wide" onclick="backToBrowser()">返回浏览预览</button>
+        <button class="btn ghost" onclick="selectAll()" style="flex:1">全选</button>
+        <button class="btn ghost" onclick="deselectAll()" style="flex:1">取消</button>
+        <button id="btnDownload" class="btn success wide" onclick="downloadSelected()">下载选中</button>
+        <button id="btnPause" class="btn warning wide" onclick="pauseDownload()" style="display:none">暂停</button>
+        <button id="btnResume" class="btn success wide" onclick="resumeDownload()" style="display:none">继续</button>
+      </section>
+    </aside>
+    <main class="main">
+      <div class="main-head"><div id="mainTitle" class="main-title">等待登录</div><div id="selectedCount" class="selected"></div></div>
+      <div class="progress"><div id="progressBar" class="bar"></div></div>
+      <div class="workspace">
+        <div id="loginOverlay" class="login">
+          <div class="login-box">
+            <h2 id="previewTitle">扫码登录 WPS</h2>
+            <p id="previewHint">登录后继续在这里点击团队入口；鼠标滚轮也会传给后台页面。</p>
+            <img id="qrImage" class="qr" src="/api/login_qr.png" alt="WPS 页面预览" onclick="clickLoginImage(event)" onwheel="wheelBrowser(event)">
+          </div>
+        </div>
+        <div id="fileTree" class="tree"><div class="empty">登录后分析链接，文件会显示在这里。</div></div>
+      </div>
+    </main>
+  </div>
+  <footer class="summary">
+    <span>总数 <strong id="sumTotal">0</strong></span>
+    <span>已选 <strong id="sumSelected">0</strong></span>
+    <span>完成 <strong id="sumDone">0</strong></span>
+    <span>大小 <strong id="sumSize">0 B</strong></span>
+  </footer>
+</div>
+<script>
+let state={tasks:[],browser:{running:false,logged_in:false}};
+let activeTask=null;
+let qrTimer=null;
+let browserInfo={url:'',title:''};
+let parsingCurrent=false;
+const $=id=>document.getElementById(id);
+
+function fmtSize(b){if(!b)return'0 B';if(b>=1073741824)return(b/1073741824).toFixed(1)+' GB';if(b>=1048576)return(b/1048576).toFixed(1)+' MB';if(b>=1024)return(b/1024).toFixed(0)+' KB';return b+' B'}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fileIcon(n){let e=(n.split('.').pop()||'').toLowerCase();return {xlsx:'表',xls:'表',docx:'文',doc:'文',pdf:'PDF',pptx:'演',png:'图',jpg:'图',jpeg:'图',csv:'CSV',txt:'文'}[e]||'文'}
+async function api(method,path,body){let opt={method,headers:{'Content-Type':'application/json'}};if(body)opt.body=JSON.stringify(body);let r=await fetch(path,opt);return r.json()}
+
+async function refreshState(){
+  state=await api('GET','/api/state');
+  if(activeTask){let t=state.tasks.find(x=>x.id===activeTask.id);if(t)activeTask=t}
+  updateUI();
+}
+
+async function launchBrowser(){
+  $('btnLaunch').disabled=true;
+  let r=await api('POST','/api/browser/launch');
+  $('btnLaunch').disabled=false;
+  toast(r.ok?'success':'error',r.ok?'登录页已加载':r.error);
+  await refreshState();
+}
+
+async function clickLoginImage(ev){
+  let img=ev.currentTarget;
+  let rect=img.getBoundingClientRect();
+  let naturalW=img.naturalWidth||400;
+  let naturalH=img.naturalHeight||600;
+  let x=(ev.clientX-rect.left)*naturalW/rect.width;
+  let y=(ev.clientY-rect.top)*naturalH/rect.height;
+  let r=await api('POST','/api/login/click',{x,y});
+  if(!r.ok)return toast('error',r.error||'点击没有送达登录页');
+  state.browser=await api('GET','/api/browser/status');
+  await refreshBrowserInfo();
+  updateUI();
+  $('qrImage').src='/api/login_qr.png?'+Date.now();
+  if(isTeamUrl(browserInfo.url))await analyzeCurrentPage(true);
+}
+
+async function wheelBrowser(ev){
+  ev.preventDefault();
+  await api('POST','/api/browser/wheel',{dx:ev.deltaX,dy:ev.deltaY});
+  $('qrImage').src='/api/login_qr.png?'+Date.now();
+}
+
+async function refreshBrowserInfo(){
+  try{
+    let r=await api('GET','/api/browser/current');
+    if(r.ok)browserInfo={url:r.url||'',title:r.title||''};
+  }catch(e){}
+  if($('currentUrl'))$('currentUrl').textContent=browserInfo.url?('当前页：'+browserInfo.url):'';
+}
+
+async function openEntgroups(){
+  $('btnOpenEntgroups').disabled=true;
+  $('btnOpenEntgroups').textContent='正在打开...';
+  let r=await api('POST','/api/browser/goto',{url:'https://www.kdocs.cn/entgroups'});
+  $('btnOpenEntgroups').disabled=false;
+  $('btnOpenEntgroups').textContent='打开团队入口页';
+  if(!r.ok)return toast('error',r.error||'打开失败');
+  await refreshBrowserInfo();
+  showBrowserPreview();
+  $('qrImage').src='/api/login_qr.png?'+Date.now();
+}
+
+async function analyzeCurrentPage(autoMode){
+  if(parsingCurrent)return;
+  parsingCurrent=true;
+  $('btnAnalyzeCurrent').disabled=true;
+  $('btnAnalyzeCurrent').textContent='正在抓取...';
+  $('mainTitle').textContent='解析中';
+  $('previewHint').textContent='正在解析当前团队页面，请稍等...';
+  let r=await api('POST','/api/analyze_current');
+  parsingCurrent=false;
+  $('btnAnalyzeCurrent').disabled=false;
+  $('btnAnalyzeCurrent').textContent='抓取当前页面';
+  if(!r.ok){
+    showBrowserPreview();
+    if(!autoMode)return toast('error',r.error||'当前页无法抓取');
+    return;
+  }
+  activeTask=r.task;
+  await refreshState();
+  buildTree();
+  toast('success','找到 '+r.task.total_files+' 个文件');
+}
+
+function isTeamUrl(url){
+  return /https?:\/\/www\.kdocs\.cn\/ent\/\d+\/\d+/.test(url||'') || /\/ent\/\d+\/\d+/.test(url||'');
+}
+
+async function analyzeUrl(){
+  let url=$('urlInput').value.trim();
+  if(!url)return toast('error','请先粘贴链接');
+  $('btnAnalyze').disabled=true;$('btnAnalyze').textContent='正在分析...';
+  let r=await api('POST','/api/analyze',{url});
+  $('btnAnalyze').disabled=false;$('btnAnalyze').textContent='分析文件';
+  if(!r.ok)return toast('error',r.error||'分析失败');
+  activeTask=r.task;
+  await refreshState();
+  buildTree();
+  toast('success','找到 '+r.task.total_files+' 个文件');
+}
+
+async function discoverGroups(){
+  $('btnDiscoverGroups').disabled=true;
+  $('btnDiscoverGroups').textContent='正在抓取团队入口...';
+  let r=await api('POST','/api/groups/discover');
+  $('btnDiscoverGroups').disabled=false;
+  $('btnDiscoverGroups').textContent='从团队列表抓取入口';
+  if(!r.ok)return toast('error',r.error||'抓取失败');
+  state.groups=r.groups||[];
+  renderGroups();
+  toast('success','找到 '+state.groups.length+' 个团队入口');
+}
+
+function renderGroups(){
+  let box=$('groupList');
+  let groups=state.groups||[];
+  if(!groups.length){box.style.display='none';box.innerHTML='';return}
+  box.style.display='block';
+  box.innerHTML=groups.map(g=>`<button class="group-item" onclick="useGroupUrl('${escAttr(g.url)}')"><div class="group-name">${escH(g.name||('团队 '+g.groupid))}</div><div class="group-url">${escH(g.url)}</div></button>`).join('');
+}
+
+function escAttr(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')}
+function useGroupUrl(url){
+  $('urlInput').value=url;
+  toast('success','已填入团队链接');
+}
+
+function buildTree(){
+  if(!activeTask||!activeTask.files)return;
+  let root={children:{},files:[]};
+  activeTask.files.forEach(f=>{
+    let parts=f.path.split('/'),node=root;
+    for(let i=0;i<parts.length-1;i++){node.children[parts[i]]??={children:{},files:[]};node=node.children[parts[i]]}
+    node.files.push(f);
+  });
+  $('fileTree').innerHTML=renderTree(root,'');
+  $('taskInfo').style.display='block';
+  $('sidebarActions').style.display='flex';
+  $('taskName').textContent=activeTask.name||activeTask.url;
+  showTree();
+  updateStats();
+}
+
+function renderTree(node,prefix){
+  let h='';
+  node.files.forEach(f=>{
+    let status=f.status||'pending';
+    let checked=status==='done'?'checked':'';
+    let size=f.downloaded_size?fmtSize(f.downloaded_size):fmtSize(f.size);
+    h+=`<div class="file"><input class="file-check" type="checkbox" data-path="${escH(f.path)}" ${checked} onchange="onFileCheckChange()"><span class="file-name" title="${escH(f.path)}">${fileIcon(f.name)} ${escH(f.name)}</span><span class="size">${size}</span><span class="file-status ${status}">${status}</span></div>`;
+  });
+  Object.keys(node.children).forEach(name=>{
+    let id='f_'+(prefix+name).replace(/[^a-zA-Z0-9]/g,'_');
+    h+=`<div class="folder"><div class="folder-head" onclick="toggleFolder('${id}')"><span id="${id}_arrow" class="arrow open">›</span><input class="folder-check" type="checkbox" data-folder="${id}" onclick="event.stopPropagation()" onchange="onFolderCheckChange('${id}',this.checked)"><strong>${escH(name)}</strong><span class="size">(${countAll(node.children[name])})</span></div><div id="${id}" class="children open">${renderTree(node.children[name],prefix+name+'/')}</div></div>`;
+  });
+  return h;
+}
+
+function countAll(node){let c=node.files.length;Object.keys(node.children).forEach(k=>c+=countAll(node.children[k]));return c}
+function toggleFolder(id){$(id)?.classList.toggle('open');$(id+'_arrow')?.classList.toggle('open')}
+function onFileCheckChange(){syncFolderChecks();updateStats()}
+function onFolderCheckChange(id,checked){
+  let folder=$(id);
+  if(!folder)return;
+  folder.querySelectorAll('input[type=checkbox]').forEach(x=>{x.checked=checked;x.indeterminate=false});
+  syncFolderChecks();
+  updateStats();
+}
+function syncFolderChecks(){
+  [...document.querySelectorAll('.folder')].reverse().forEach(folder=>{
+    let box=folder.querySelector(':scope > .folder-head .folder-check');
+    let children=folder.querySelector(':scope > .children');
+    if(!box||!children)return;
+    let checks=[...children.querySelectorAll('input[type=checkbox]')].filter(x=>x!==box);
+    if(!checks.length){box.checked=false;box.indeterminate=false;return}
+    let checked=checks.filter(x=>x.checked).length;
+    box.checked=checked===checks.length;
+    box.indeterminate=checked>0&&checked<checks.length;
+  });
+}
+function selectAll(){document.querySelectorAll('#fileTree input[type=checkbox]').forEach(x=>{x.checked=true;x.indeterminate=false});syncFolderChecks();updateStats()}
+function deselectAll(){document.querySelectorAll('#fileTree input[type=checkbox]').forEach(x=>{x.checked=false;x.indeterminate=false});updateStats()}
+function getSelectedFiles(){if(!activeTask)return[];let paths=new Set([...document.querySelectorAll('#fileTree .file-check:checked')].map(x=>x.dataset.path));return activeTask.files.filter(f=>paths.has(f.path)&&f.status==='pending')}
+
+function updateStats(){
+  if(!activeTask)return;
+  let sel=getSelectedFiles(),tf=activeTask.total_files||0,df=activeTask.downloaded_files||0,ts=activeTask.total_size||0;
+  $('statFiles').textContent=tf;$('statSize').textContent=fmtSize(ts);$('statDone').textContent=df;
+  $('selectedCount').textContent=sel.length+' 个已选';$('sumTotal').textContent=tf;$('sumSelected').textContent=sel.length;$('sumDone').textContent=df;$('sumSize').textContent=fmtSize(ts);
+  $('progressBar').style.width=(tf?Math.round(df/tf*100):0)+'%';
+  let down=activeTask.status==='downloading',paused=activeTask.status==='paused';
+  $('btnDownload').style.display=(!down&&!paused)?'':'none';$('btnPause').style.display=down?'':'none';$('btnResume').style.display=paused?'':'none';
+}
+
+async function downloadSelected(){
+  if(!activeTask)return;
+  let sel=getSelectedFiles();
+  if(!sel.length)return toast('error','没有可下载的选中文件');
+  let dir=await chooseDownloadDir();
+  if(!dir)return;
+  let paths=new Set(sel.map(f=>f.path));
+  let payload=JSON.parse(JSON.stringify(activeTask));
+  payload.files=payload.files.filter(f=>f.status==='done'||paths.has(f.path));
+  payload.total_files=payload.files.length;
+  payload.total_size=payload.files.reduce((s,f)=>s+(f.size||0),0);
+  payload.downloaded_files=payload.files.filter(f=>f.status==='done').length;
+  payload.downloaded_size=payload.files.filter(f=>f.status==='done').reduce((s,f)=>s+(f.downloaded_size||0),0);
+  await api('POST','/api/set_task',payload);
+  let r=await api('POST','/api/download/'+activeTask.id,{download_dir:dir});
+  if(!r.ok)return toast('error',r.error||'无法开始下载');
+  await refreshState();
+}
+async function chooseDownloadDir(){
+  let r=await api('POST','/api/download_dir');
+  if(!r.ok){toast('error',r.error||'没有选择下载目录');return ''}
+  return r.download_dir;
+}
+async function pauseDownload(){if(activeTask){await api('POST','/api/download/'+activeTask.id+'/pause');await refreshState()}}
+async function resumeDownload(){if(activeTask){await api('POST','/api/download/'+activeTask.id+'/resume');await refreshState()}}
+
+function backToBrowser(){
+  activeTask=null;
+  $('taskInfo').style.display='none';
+  $('sidebarActions').style.display='none';
+  $('progressBar').style.width='0%';
+  $('selectedCount').textContent='';
+  showBrowserPreview();
+}
+
+function showLogin(){ $('loginOverlay').style.display='flex';$('fileTree').style.display='none';$('mainTitle').textContent='等待登录';startQrRefresh() }
+function showBrowserPreview(){
+  $('loginOverlay').style.display='flex';
+  $('fileTree').style.display='none';
+  $('mainTitle').textContent='页面预览';
+  $('previewTitle').textContent=state.browser.logged_in?'选择团队页面':'扫码登录 WPS';
+  $('previewHint').textContent=state.browser.logged_in?'在预览里点击团队入口，到了目标页后点左侧“抓取当前页面”。':'登录后继续在这里点击团队入口；鼠标滚轮也会传给后台页面。';
+  startQrRefresh();
+}
+function showTree(){ $('loginOverlay').style.display='none';$('fileTree').style.display='block';$('mainTitle').textContent=activeTask?'文件列表':'准备就绪';stopQrRefresh() }
+function startQrRefresh(){if(qrTimer)return;qrTimer=setInterval(()=>{$('qrImage').src='/api/login_qr.png?'+Date.now()},3000)}
+function stopQrRefresh(){if(qrTimer){clearInterval(qrTimer);qrTimer=null}}
+
+function updateUI(){
+  let dot='<span class="dot"></span>';
+  if(state.browser.logged_in){
+    $('browserStatus').innerHTML='<span class="dot on"></span>已登录';
+    $('btnLaunch').style.display='none';
+    if(activeTask)showTree();else showBrowserPreview();
+  }else if(state.browser.running){
+    $('browserStatus').innerHTML='<span class="dot wait"></span>等待扫码';
+    $('btnLaunch').style.display='none';
+    showBrowserPreview();
+  }else{
+    $('browserStatus').innerHTML=dot+'未连接';
+    $('btnLaunch').style.display='';
+    showBrowserPreview();
+  }
+  if(activeTask)updateStats();
+  renderGroups();
+}
+
+function toast(type,msg){let el=document.createElement('div');el.className='toast '+type;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),3000)}
+setInterval(async()=>{try{state.browser=await api('GET','/api/browser/status');await refreshBrowserInfo();updateUI();await refreshState()}catch(e){}},3000);
+refreshState();
+</script>
+</body>
+</html>
